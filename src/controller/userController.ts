@@ -51,6 +51,6 @@ export class UserController {
 
     const user = this.userStorage.create(data);
 
-    return new Response(user);
+    return new Response(user, 201);
   }
 }

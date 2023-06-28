@@ -41,9 +41,9 @@ export class RoutingService {
       }
     }
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-
+    const headers = { 'Content-Type': 'application/json' };
     let response;
+
     try {
       response = !matchedRoute
         ? Response.notFound('not found')
@@ -54,13 +54,14 @@ export class RoutingService {
       }
 
       if (!response) {
+        res.writeHead(200, headers);
         res.end();
         return;
       }
     } catch (e) {
       response = Response.internalError();
     } finally {
-      res.statusCode = response.httpCode;
+      res.writeHead(response.httpCode, headers);
       res.end(JSON.stringify(response.response));
     }
   }
