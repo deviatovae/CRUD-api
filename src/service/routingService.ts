@@ -12,9 +12,10 @@ export class RoutingService {
     this.routes[key] = handler;
   }
 
-  handleRequest(req: http.IncomingMessage, res: http.ServerResponse): void {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-
+  async handleRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+  ): Promise<void> {
     const { url: reqUrl, method } = req;
     const { pathname: reqPath } = url.parse(reqUrl, true);
 
@@ -25,7 +26,9 @@ export class RoutingService {
       const routeRegex = new RegExp(
         '^' + route.replace(/:\w+/g, '((.*?)[^/]+)') + '$',
       );
-      const match = this.createRouteKey(method, reqPath).match(routeRegex);
+
+      const key = this.createRouteKey(method, reqPath);
+      const match = key.match(routeRegex);
 
       if (match) {
         matchedRoute = route;
@@ -38,17 +41,28 @@ export class RoutingService {
       }
     }
 
-    const response = !matchedRoute
-      ? Response.notFound('not found')
-      : this.routes[matchedRoute](Request.createFromReq(req, params));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    if (!response) {
-      res.end();
-      return;
+    let response;
+    try {
+      response = !matchedRoute
+        ? Response.notFound('not found')
+        : this.routes[matchedRoute](Request.createFromReq(req, params));
+
+      if (response instanceof Promise) {
+        response = await response;
+      }
+
+      if (!response) {
+        res.end();
+        return;
+      }
+    } catch (e) {
+      response = Response.internalError();
+    } finally {
+      res.statusCode = response.httpCode;
+      res.end(JSON.stringify(response.response));
     }
-
-    res.writeHead(response.httpCode);
-    res.end(JSON.stringify(response.response));
   }
 
   private createRouteKey(method: string, url: string): string {

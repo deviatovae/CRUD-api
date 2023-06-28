@@ -1,4 +1,5 @@
 import { User } from '../entity/user';
+import { v4 as uuid } from 'uuid';
 
 export class UserStorage {
   private readonly users: User[] = [
@@ -28,5 +29,11 @@ export class UserStorage {
 
   findOne(id: string) {
     return this.users.find(({ id: userId }) => id === userId);
+  }
+
+  create(user: Omit<User, 'id'>) {
+    const newUser = { id: uuid(), ...user };
+    this.users.push(newUser);
+    return newUser;
   }
 }
