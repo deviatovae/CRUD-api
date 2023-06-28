@@ -1,7 +1,7 @@
-import http from 'http';
 import { Request } from './request';
+import { Response } from './response';
 
-export type HttpHandler = (req: Request, res: http.ServerResponse) => void;
+export type HttpHandler = (req: Request) => Response;
 
 export enum HttpMethod {
   GET = 'GET',

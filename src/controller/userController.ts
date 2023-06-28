@@ -1,40 +1,27 @@
-import http from 'http';
 import { UserStorage } from '../storage/userStorage';
 import { Request } from '../types/request';
 import * as uuid from 'uuid';
+import { Response } from '../types/response';
 
 export class UserController {
   constructor(private readonly userStorage: UserStorage) {}
 
-  getUsers(_: Request, res: http.ServerResponse) {
-    const users = this.userStorage.findAll();
-    res.end(JSON.stringify(users));
+  getUsers(): Response {
+    return new Response(this.userStorage.findAll());
   }
 
-  getUserById(req: Request, res: http.ServerResponse) {
+  getUserById(req: Request) {
     const userId = req.params['id'];
 
     if (!uuid.validate(userId)) {
-      res.writeHead(400);
-      res.end(
-        JSON.stringify({
-          error: 'userId is not valid uuid',
-        }),
-      );
-      return;
+      return Response.badRequest('userId is not valid uuid');
     }
 
     const user = this.userStorage.findOne(userId);
     if (!user) {
-      res.writeHead(404);
-      res.end(
-        JSON.stringify({
-          error: 'user is not found',
-        }),
-      );
-      return;
+      return Response.notFound('user is not found');
     }
 
-    res.end(JSON.stringify(user));
+    return new Response(user);
   }
 }

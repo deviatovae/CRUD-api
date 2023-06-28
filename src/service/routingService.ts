@@ -2,6 +2,7 @@ import { HttpHandler, HttpMethod } from '../types/http';
 import http from 'http';
 import * as url from 'url';
 import { Request } from '../types/request';
+import { Response } from '../types/response';
 
 export class RoutingService {
   private readonly routes: { [key: string]: HttpHandler } = {};
@@ -12,6 +13,8 @@ export class RoutingService {
   }
 
   handleRequest(req: http.IncomingMessage, res: http.ServerResponse): void {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+
     const { url: reqUrl, method } = req;
     const { pathname: reqPath } = url.parse(reqUrl, true);
 
@@ -35,12 +38,17 @@ export class RoutingService {
       }
     }
 
-    if (!matchedRoute) {
-      res.statusCode = 404;
-      res.end(JSON.stringify({ error: 'not found' }));
+    const response = !matchedRoute
+      ? Response.notFound('not found')
+      : this.routes[matchedRoute](Request.createFromReq(req, params));
+
+    if (!response) {
+      res.end();
+      return;
     }
 
-    this.routes[matchedRoute](Request.createFromReq(req, params), res);
+    res.writeHead(response.httpCode);
+    res.end(JSON.stringify(response.response));
   }
 
   private createRouteKey(method: string, url: string): string {
