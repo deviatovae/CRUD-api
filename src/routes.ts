@@ -11,3 +11,9 @@ router.addRoute(
   '/api/users',
   userController.getUsers.bind(userController),
 );
+
+router.addRoute(
+  HttpMethod.GET,
+  '/api/users/:id',
+  userController.getUserById.bind(userController),
+);

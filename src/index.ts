@@ -8,6 +8,7 @@ http
   .createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     router.handleRequest(req, res);
+    res.end();
   })
 
   .listen(port, hostname, () => {

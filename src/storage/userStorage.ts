@@ -25,4 +25,8 @@ export class UserStorage {
   findAll() {
     return this.users;
   }
+
+  findOne(id: string) {
+    return this.users.find(({ id: userId }) => id === userId);
+  }
 }
