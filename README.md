@@ -85,6 +85,9 @@ Creates a new user
   
 
 * **Body**
+  - name: <`string`> `required`
+  - age: <`number`> `required`
+  - hobbies — <`string[] | []`> `required`
   ```json
     {
       "name": "Billy",
@@ -110,7 +113,10 @@ Updates a user by their id
 ---
 * **Body**
 
-* All fields are required
+  - name: <`string`> `required`
+  - age: <`number`> `required`
+  - hobbies — <`string[] | []`> `required`
+  
   ```json
     {
         "name": "Lofi",
