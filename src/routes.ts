@@ -29,3 +29,9 @@ router.addRoute(
   '/api/users/:id',
   userController.updateUserById.bind(userController),
 );
+
+router.addRoute(
+  HttpMethod.DELETE,
+  '/api/users/:id',
+  userController.deleteUserById.bind(userController),
+);

@@ -48,4 +48,13 @@ export class UserStorage {
 
     return user;
   }
+
+  delete(id: string) {
+    const userIdx = this.users.findIndex(({ id: userId }) => userId === id);
+    if (userIdx < 0) {
+      return null;
+    }
+
+    return this.users.splice(userIdx, 1);
+  }
 }

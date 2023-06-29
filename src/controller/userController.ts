@@ -55,9 +55,24 @@ export class UserController {
     }
 
     const user = this.userStorage.update(userId, data);
-
     if (!user) {
-      this.userNotFound();
+      return this.userNotFound();
+    }
+
+    return new Response(user);
+  }
+
+  deleteUserById(req: Request) {
+    const userId = req.params['id'];
+
+    const userIdError = this.validateUserId(userId);
+    if (userIdError) {
+      return userIdError;
+    }
+
+    const user = this.userStorage.delete(userId);
+    if (!user) {
+      return this.userNotFound();
     }
 
     return new Response(user);
