@@ -75,7 +75,7 @@ export class UserController {
       return this.userNotFound();
     }
 
-    return new Response(user);
+    return new Response(user, 204);
   }
 
   private validateUserId(id) {
