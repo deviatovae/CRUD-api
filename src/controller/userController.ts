@@ -14,13 +14,14 @@ export class UserController {
   getUserById(req: Request) {
     const userId = req.params['id'];
 
-    if (!uuid.validate(userId)) {
-      return Response.badRequest('userId is not valid uuid');
+    const userIdError = this.validateUserId(userId);
+    if (userIdError) {
+      return userIdError;
     }
 
     const user = this.userStorage.findOne(userId);
     if (!user) {
-      return Response.notFound('user is not found');
+      this.userNotFound();
     }
 
     return new Response(user);
@@ -29,6 +30,46 @@ export class UserController {
   async createUser(req: Request) {
     const data = await req.getJSON<Omit<User, 'id'>>();
 
+    const error = this.validateUserData(data);
+    if (error) {
+      return error;
+    }
+
+    const user = this.userStorage.create(data);
+
+    return new Response(user, 201);
+  }
+
+  async updateUserById(req: Request) {
+    const userId = req.params['id'];
+    const data = await req.getJSON<Omit<User, 'id'>>();
+
+    const userIdError = this.validateUserId(userId);
+    if (userIdError) {
+      return userIdError;
+    }
+
+    const error = this.validateUserData(data);
+    if (error) {
+      return error;
+    }
+
+    const user = this.userStorage.update(userId, data);
+
+    if (!user) {
+      this.userNotFound();
+    }
+
+    return new Response(user);
+  }
+
+  private validateUserId(id) {
+    if (!uuid.validate(id)) {
+      return Response.badRequest('userId is not valid uuid');
+    }
+  }
+
+  private validateUserData(data: Omit<User, 'id'>) {
     if (!data.age || !data.name || !data.hobbies) {
       return Response.badRequest('Required field(s) is not provided');
     }
@@ -48,9 +89,9 @@ export class UserController {
     if (!data.hobbies.every((hobby) => typeof hobby === 'string' && hobby)) {
       return Response.badRequest('Hobby should be a non-empty string');
     }
+  }
 
-    const user = this.userStorage.create(data);
-
-    return new Response(user, 201);
+  private userNotFound() {
+    return Response.notFound('user is not found');
   }
 }

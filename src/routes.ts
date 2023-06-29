@@ -23,3 +23,9 @@ router.addRoute(
   '/api/users',
   userController.createUser.bind(userController),
 );
+
+router.addRoute(
+  HttpMethod.PUT,
+  '/api/users/:id',
+  userController.updateUserById.bind(userController),
+);

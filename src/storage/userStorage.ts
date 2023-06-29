@@ -36,4 +36,16 @@ export class UserStorage {
     this.users.push(newUser);
     return newUser;
   }
+
+  update(id: string, { name, age, hobbies }: Omit<User, 'id'>) {
+    const user = this.findOne(id);
+    if (!user) {
+      return null;
+    }
+    user.name = name;
+    user.age = age;
+    user.hobbies = hobbies;
+
+    return user;
+  }
 }
