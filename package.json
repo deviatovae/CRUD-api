@@ -6,7 +6,9 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\"",
     "start:dev": "nodemon",
+    "start:multi:dev": "nodemon --config nodemon.json --exec ts-node src/cluster.ts",
     "build": "tsc",
+    "start:multi:prod": "node dist/cluster.js",
     "start:prod": "node dist/index.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\""
   },
