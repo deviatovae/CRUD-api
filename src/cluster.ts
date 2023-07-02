@@ -1,9 +1,9 @@
 import * as http from 'http';
-import { router } from './routes';
 import cluster from 'cluster';
 import { availableParallelism } from 'os';
 import * as url from 'url';
 import { configDotenv } from 'dotenv';
+import { createApp } from './createApp';
 
 configDotenv();
 const hostname = '127.0.0.1';
@@ -44,10 +44,11 @@ if (cluster.isPrimary) {
       console.log(`Server is running at http://${hostname}:${port}/`);
     });
 } else {
+  const app = createApp();
   http
     .createServer(async function (req, res) {
       console.log('Response from cluster with port: ' + port);
-      await router.handleRequest(req, res);
+      await app(req, res);
     })
 
     .listen(port, hostname, () => {

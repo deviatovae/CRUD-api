@@ -21,7 +21,7 @@ export class UserController {
 
     const user = this.userStorage.findOne(userId);
     if (!user) {
-      this.userNotFound();
+      return this.userNotFound();
     }
 
     return new Response(user);
