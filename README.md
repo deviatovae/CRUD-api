@@ -2,8 +2,11 @@
 
 1. Copy `.env.example` to `.env`
 2. Run `npm install`
-3. Start in development mode `start:dev`
-4. Start in development mode `start:prod`
+3. Start in development mode `npm run start:dev`
+4. Start in production mode `npm run build`, `npm run start:prod`
+5. Start server in multi cluster mode (dev): `npm run start:multi:dev`
+6. Start server in multi cluster mode (prod): `npm run build`, `npm run start:multi:prod`
+7. Run tests `npm run test`
 
 ## Usage
 
