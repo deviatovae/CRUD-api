@@ -2,7 +2,7 @@ import { UserStorage } from '../storage/userStorage';
 import { Request } from '../types/request';
 import * as uuid from 'uuid';
 import { Response } from '../types/response';
-import { User } from '../entity/user';
+import { UserDto } from '../types/userDto';
 
 export class UserController {
   constructor(private readonly userStorage: UserStorage) {}
@@ -28,7 +28,7 @@ export class UserController {
   }
 
   async createUser(req: Request) {
-    const data = await req.getJSON<Omit<User, 'id'>>();
+    const data = await req.getJSON<UserDto>();
 
     const error = this.validateUserData(data);
     if (error) {
@@ -42,7 +42,7 @@ export class UserController {
 
   async updateUserById(req: Request) {
     const userId = req.params['id'];
-    const data = await req.getJSON<Omit<User, 'id'>>();
+    const data = await req.getJSON<UserDto>();
 
     const userIdError = this.validateUserId(userId);
     if (userIdError) {
@@ -84,7 +84,7 @@ export class UserController {
     }
   }
 
-  private validateUserData(data: Omit<User, 'id'>) {
+  private validateUserData(data: UserDto) {
     if (!data.age || !data.name || !data.hobbies) {
       return Response.badRequest('Required field(s) is not provided');
     }

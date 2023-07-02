@@ -3,6 +3,8 @@ import { createApp } from '../src/createApp';
 import request from 'supertest';
 import { UserStorage } from '../src/storage/userStorage';
 import { v4 as uuid } from 'uuid';
+import { UserDto } from '../src/types/userDto';
+import { User } from '../src/entity/user';
 
 describe('First scenario: testing get list of users and get userById', () => {
   const app = createApp();
@@ -61,18 +63,65 @@ describe('First scenario: testing get list of users and get userById', () => {
   });
 });
 
-// it('should ', (done) => {
-//   const data: Omit<User, 'id'> = {
-//     name: '111',
-//     age: 23,
-//     hobbies: [],
-//   };
-//   request(app)
-//     .post('/api/users')
-//     .send(data)
-//     .expect(201)
-//     .end(function (err) {
-//       if (err) return done(err);
-//       return done();
-//     });
-// });
+describe('Second scenario: testing creating of a new user', () => {
+  const app = createApp();
+
+  it('Should return an error when a required field is missing in request', (done) => {
+    const fields: (keyof UserDto)[] = ['name', 'age', 'hobbies'];
+    const requests = fields.map((field) => {
+      const data: Partial<UserDto> = {
+        name: 'Tester',
+        age: 23,
+        hobbies: [],
+      };
+
+      delete data[field];
+
+      return request(app)
+        .post('/api/users')
+        .send(data)
+        .expect(400)
+        .then((response) => {
+          expect(response.body).toEqual({
+            error: 'Required field(s) is not provided',
+          });
+        });
+    });
+
+    Promise.all(requests)
+      .then(() => done())
+      .catch((err) => done(err));
+  });
+
+  const user: Partial<User> = {
+    name: 'Tester',
+    age: 24,
+    hobbies: ['Water Skiing', 'Surfing'],
+  };
+
+  it('Should return a new user', (done) => {
+    request(app)
+      .post('/api/users')
+      .send(user)
+      .expect(201)
+      .then((response) => {
+        expect(response.body).not.toBeUndefined();
+        user.id = response.body.id;
+        expect(response.body).toEqual(user);
+        done();
+      });
+  });
+
+  it('Should return a list of users with a newly created user', (done) => {
+    request(app)
+      .get('/api/users')
+      .expect(200)
+      .then((response) => {
+        const userFromList = response.body.find(
+          ({ id: userId }) => user.id === userId,
+        );
+        expect(userFromList).toEqual(user);
+        done();
+      });
+  });
+});
