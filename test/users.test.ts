@@ -125,3 +125,51 @@ describe('Second scenario: testing creating of a new user', () => {
       });
   });
 });
+
+describe('Third scenario: testing deleting a user', () => {
+  const app = createApp();
+  let userIdToDelete;
+
+  it('Should get the id from the first user', (done) => {
+    request(app)
+      .get('/api/users')
+      .expect(200)
+      .then((response) => {
+        userIdToDelete = response.body[0]?.id;
+        expect(userIdToDelete).toBeTruthy();
+        done();
+      });
+  });
+
+  it('Should delete the found user by id', (done) => {
+    request(app)
+      .delete(`/api/users/${userIdToDelete}`)
+      .expect(204)
+      .end((err) => (err ? done(err) : done()));
+  });
+
+  it('Should return an error when trying to delete a deleted user', (done) => {
+    request(app)
+      .delete(`/api/users/${userIdToDelete}`)
+      .expect(404)
+      .then((response) => {
+        expect(response.body).toEqual({ error: 'user is not found' });
+        done();
+      })
+      .catch((err) => done(err));
+  });
+
+  it('Should not return the deleted user', (done) => {
+    request(app)
+      .get(`/api/users`)
+      .expect(200)
+      .then((response) => {
+        const hasDeletedUser = !response.body.every(
+          (user) => user?.id !== userIdToDelete,
+        );
+        expect(hasDeletedUser).toBeFalsy();
+        done();
+      })
+      .catch((err) => done(err));
+  });
+});
